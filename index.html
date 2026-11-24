@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regressiya Lab — chiziqli regressiya dasturiy majmuasi</title>
+    <meta name="description" content="Chiziqli regressiya masalalarini yechish uchun dasturiy majmua: EKKU, statistik testlar, diagnostika, bashorat, gradient tushish va 3D vizualizatsiya." />
+    <meta name="theme-color" content="#05060f" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="preloader" id="preloader" aria-hidden="true">
+      <div class="preloader__inner">
+        <svg viewBox="0 0 120 120" class="preloader__svg">
+          <line x1="14" y1="100" x2="106" y2="20" class="preloader__line" />
+          <circle cx="24" cy="86" r="4" /><circle cx="40" cy="80" r="4" /><circle cx="52" cy="62" r="4" />
+          <circle cx="68" cy="58" r="4" /><circle cx="80" cy="40" r="4" /><circle cx="96" cy="34" r="4" />
+        </svg>
+        <div class="preloader__count"><span id="preloader-count">0</span>%</div>
+      </div>
+    </div>
+
+    <div class="cursor" aria-hidden="true"><div class="cursor__dot"></div><div class="cursor__ring"></div></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="scroll-progress" aria-hidden="true"><span></span></div>
+
+    <header class="nav" id="nav">
+      <a href="#top" class="nav__logo" aria-label="Bosh sahifa">
+        <span class="nav__logo-mark">ŷ</span><span>Regressiya<b>.Lab</b></span>
+      </a>
+      <nav class="nav__links" aria-label="Asosiy menyu">
+        <a href="#imkoniyatlar">Imkoniyatlar</a>
+        <a href="#qollanma">Qo‘llanma</a>
+        <a href="#masalalar">Masalalar</a>
+        <a href="#lab">Laboratoriya</a>
+        <a href="#gradient">Gradient</a>
+        <a href="#nazariya">Nazariya</a>
+      </nav>
+      <a href="#lab" class="btn btn--small btn--glow nav__cta">Boshlash</a>
+      <button class="nav__burger" aria-label="Menyu" aria-expanded="false"><span></span><span></span></button>
+    </header>
+
+    <main id="top">
+      <!-- ============ HERO ============ -->
+      <section class="hero" id="hero">
+        <canvas class="hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero__vignette" aria-hidden="true"></div>
+        <div class="hero__content">
+          <p class="hero__kicker"><span class="pulse"></span> Dasturiy majmua · EKKU · Statistik tahlil · 3D</p>
+          <h1 class="hero__title">
+            <span class="line"><span class="split">Chiziqli</span></span>
+            <span class="line"><span class="split gradient-text">regressiya</span></span>
+            <span class="line"><span class="split">masalalari</span></span>
+          </h1>
+          <p class="hero__lead">
+            Ma’lumotlarni kiriting — majmua regressiya tenglamasini quradi, uni Fisher va Student mezonlari bilan tekshiradi,
+            qoldiqlarni diagnostika qiladi, bashorat oraliqlarini hisoblaydi va natijani 3D fazoda ko‘rsatadi.
+          </p>
+          <div class="hero__actions">
+            <a href="#lab" class="btn btn--glow magnetic"><span>Laboratoriyani ochish</span><i>→</i></a>
+            <a href="#nazariya" class="btn btn--ghost magnetic"><span>Nazariyani o‘rganish</span></a>
+          </div>
+          <dl class="hero__stats">
+            <div><dt class="counter" data-to="1e-9" data-format="exp">10⁻⁹</dt><dd>statsmodels bilan mos aniqlik</dd></div>
+            <div><dt class="counter" data-to="14">14</dt><dd>statistik ko‘rsatkich va test</dd></div>
+            <div><dt class="counter" data-to="6">6</dt><dd>model turi: chiziqli, parabolik, darajali…</dd></div>
+            <div><dt class="counter" data-to="13">13</dt><dd>real ma’lumotlar to‘plami, jumladan O‘zbekiston</dd></div>
+          </dl>
+        </div>
+        <div class="hero__formula" aria-hidden="true" id="hero-formula"></div>
+        <a href="#imkoniyatlar" class="hero__scroll" aria-label="Pastga"><span></span></a>
+      </section>
+
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track" id="marquee"></div>
+      </div>
+
+      <!-- ============ FEATURES ============ -->
+      <section class="section" id="imkoniyatlar">
+        <header class="section__head">
+          <p class="eyebrow">01 — Imkoniyatlar</p>
+          <h2 class="section__title reveal-words">Bir majmuada — masala shartidan to‘liq xulosagacha</h2>
+        </header>
+        <div class="features">
+          <article class="feature tilt">
+            <div class="feature__icon">QR</div>
+            <h3>Barqaror EKKU</h3>
+            <p>Koeffitsiyentlar Householder QR-yoyilmasi orqali hisoblanadi — (XᵀX)⁻¹ ni bevosita teskarilashdagi sonli xatoliklarsiz.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">F·t</div>
+            <h3>Statistik mezonlar</h3>
+            <p>Fisher F va Student t (jadval qiymatlari bilan), ishonch oraliqlari, HC3 bardoshli xatolar, xususiy korrelyatsiya — NIST etaloni va statsmodels bilan tekshirilgan.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">DW</div>
+            <h3>Qoldiqlar diagnostikasi</h3>
+            <p>Darbin–Uotson, Jark–Bera, Breush–Pagan, VIF, Kuk masofasi, leverage va studentlashgan qoldiqlar.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">ŷ±</div>
+            <h3>Bashorat oraliqlari</h3>
+            <p>O‘rtacha qiymat uchun ishonch oralig‘i va individual qiymat uchun bashorat oralig‘i, ekstrapolyatsiya ogohlantirishi bilan.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">∇J</div>
+            <h3>Gradient tushish</h3>
+            <p>Batch, mini-batch, SGD, momentum va so‘nish — xarajat funksiyasi sirtida jonli animatsiya.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">3D</div>
+            <h3>Fazoviy vizualizatsiya</h3>
+            <p>Ikki omilli modelda regressiya tekisligi va qoldiqlar Three.js yordamida aylantiriladigan 3D sahnada.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">ln</div>
+            <h3>6 turdagi model</h3>
+            <p>Chiziqli, parabolik, darajali, ko‘rsatkichli, logarifmik va giperbolik modellar — chiziqlilashtirish, asl birliklardagi solishtirish va eng yaxshisini tanlash.</p>
+          </article>
+          <article class="feature tilt">
+            <div class="feature__icon">UZ</div>
+            <h3>Real ma’lumotlar</h3>
+            <p>O‘zbekiston bo‘yicha Jahon banki ko‘rsatkichlari, BMT statistikasi, NIST etaloni va klassik ilmiy to‘plamlar; Excel (.xlsx) va CSV yuklash.</p>
+          </article>
+        </div>
+      </section>
+
+
+      <!-- ============ GUIDE ============ -->
+      <section class="section" id="qollanma">
+        <header class="section__head">
+          <p class="eyebrow">02 — Qo‘llanma</p>
+          <h2 class="section__title reveal-words">To‘rt qadamda regressiya masalasini yeching</h2>
+          <p class="section__lead">Dasturdan foydalanish uchun statistika bo‘yicha chuqur bilim talab etilmaydi: har bir ko‘rsatkich yonidagi <span class="help help--inline" aria-hidden="true">?</span> belgisini bossangiz, uning ma’nosi oddiy tilda tushuntiriladi.</p>
+        </header>
+        <ol class="guide">
+          <li class="guide__step"><span class="guide__n">1</span><h3>Ma’lumot kiriting</h3><p>Tayyor masalani tanlang, jadvalga qiymatlarni yozing, Excel’dan nusxa olib joylashtiring yoki CSV fayl yuklang.</p></li>
+          <li class="guide__step"><span class="guide__n">2</span><h3>O‘zgaruvchilarni belgilang</h3><p>Natijaviy belgi (y) — nimani tushuntirmoqchisiz. Omillar (x) — unga nimalar ta’sir qiladi. Bitta omil — juft, bir nechta — ko‘p omilli regressiya.</p></li>
+          <li class="guide__step"><span class="guide__n">3</span><h3>Modelni quring</h3><p>Dastur EKKU bilan tenglamani topadi, R², F va t mezonlarini, diagnostika testlarini hisoblaydi hamda grafiklarni chizadi.</p></li>
+          <li class="guide__step"><span class="guide__n">4</span><h3>Xulosa va bashorat</h3><p>“Avtomatik xulosa” natijalarni o‘zbek tilida talqin qiladi. “Bashorat” bo‘limida yangi qiymat uchun natija va uning oraliqlarini oling, hisobotni yuklab oling.</p></li>
+        </ol>
+        <div class="glossary">
+          <h3 class="glossary__title">Atamalar lug‘ati</h3>
+          <div class="glossary__list" id="glossary"></div>
+        </div>
+      </section>
+
+      <!-- ============ DATASETS ============ -->
+      <section class="section" id="masalalar">
+        <header class="section__head">
+          <p class="eyebrow">03 — Masalalar to‘plami</p>
+          <h2 class="section__title reveal-words">Real ma’lumotlar asosidagi masalalar</h2>
+          <p class="section__lead">O‘zbekiston bo‘yicha Jahon banki ma’lumotlari, BMT statistikasi, NIST etalon to‘plami va regressiya tahlilining klassik ilmiy ma’lumotlari. Har bir masalada manba va iqtibos ko‘rsatilgan.</p>
+        </header>
+        <div class="seg seg--filters" id="problem-filters" role="tablist"></div>
+        <div class="problems" id="problems"></div>
+      </section>
+
+      <!-- ============ LAB ============ -->
+      <section class="section section--lab" id="lab">
+        <header class="section__head">
+          <p class="eyebrow">04 — Laboratoriya</p>
+          <h2 class="section__title reveal-words">Regressiya modelini quring</h2>
+        </header>
+
+        <div class="lab">
+          <aside class="panel lab__input">
+            <div class="panel__head">
+              <h3>Ma’lumotlar</h3>
+              <div class="seg" role="tablist" id="data-tabs">
+                <button role="tab" class="is-active" data-tab="table">Jadval</button>
+                <button role="tab" data-tab="csv">CSV / matn</button>
+              </div>
+            </div>
+            <p class="lab__problem" id="problem-text"></p>
+            <div class="lab__source" id="problem-source" hidden></div>
+
+            <div class="data-tab" data-pane="table">
+              <div class="table-editor" id="table-editor"></div>
+              <div class="row-actions">
+                <button class="btn btn--tiny btn--ghost" id="add-row">+ qator</button>
+                <button class="btn btn--tiny btn--ghost" id="add-col">+ ustun</button>
+                <button class="btn btn--tiny btn--ghost" id="clear-table">Tozalash</button>
+                <span class="muted" id="table-info"></span>
+              </div>
+              <button class="btn btn--tiny btn--ghost" id="table-more" type="button" hidden></button>
+            </div>
+
+            <div class="data-tab" data-pane="csv" hidden>
+              <textarea id="csv-input" class="textarea" spellcheck="false" placeholder="davlat;x;y&#10;O‘zbekiston;1,5;3,2&#10;Qozog‘iston;2,1;4,0&#10;…  (vergul, nuqtali vergul yoki tab bilan ajrating; matnli birinchi ustun — yorliq)"></textarea>
+              <div class="row-actions">
+                <button class="btn btn--tiny btn--glow" id="csv-apply">Jadvalga yuklash</button>
+                <label class="btn btn--tiny btn--ghost file-btn">Fayl tanlash (.xlsx, .csv, .txt)<input type="file" id="csv-file" accept=".xlsx,.csv,.txt,.tsv,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></label>
+              </div>
+              <p class="muted small" id="csv-report"></p>
+            </div>
+
+            <div class="vars">
+              <label class="field">
+                <span>Natijaviy belgi (y)</span>
+                <select id="target-select"></select>
+              </label>
+              <div class="field">
+                <span>Omillar (x)</span>
+                <div class="chips" id="feature-chips"></div>
+              </div>
+              <label class="field">
+                <span>Model turi</span>
+                <select id="model-type"></select>
+                <small class="muted" id="model-type-hint"></small>
+              </label>
+              <div class="field-row">
+                <label class="switch"><input type="checkbox" id="intercept" checked /><span class="switch__track"></span>Ozod had (b₀)</label>
+                <label class="field field--inline">
+                  <span>Ishonchlilik</span>
+                  <select id="alpha-select">
+                    <option value="0.1">90%</option>
+                    <option value="0.05" selected>95%</option>
+                    <option value="0.01">99%</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn--glow btn--block magnetic" id="fit-btn"><span>Modelni qurish</span><i>⟶</i></button>
+            <p class="error" id="fit-error" role="alert" hidden></p>
+          </aside>
+
+          <div class="lab__output" id="results" aria-live="polite">
+            <div class="empty" id="results-empty">
+              <div class="empty__orb"></div>
+              <p>Ma’lumotlarni tanlang va <b>“Modelni qurish”</b> tugmasini bosing.</p>
+            </div>
+
+            <div class="results" id="results-body" hidden>
+              <div class="panel equation-card">
+                <p class="eyebrow">Regressiya tenglamasi <button type="button" class="help" data-help="ekku" aria-label="EKKU — izoh">?</button></p>
+                <div class="equation" id="equation"></div>
+                <div class="equation-actions">
+                  <button class="btn btn--tiny btn--ghost" id="copy-eq">Nusxa olish</button>
+                  <span class="muted small" id="model-meta"></span>
+                </div>
+              </div>
+
+              <div class="metrics" id="metrics"></div>
+
+              <div class="panel">
+                <div class="panel__head">
+                  <h3 id="viz-title">Vizualizatsiya</h3>
+                  <div class="legend" id="viz-legend"></div>
+                </div>
+                <div class="viz" id="viz-main"></div>
+              </div>
+
+              <div class="panel">
+                <div class="seg seg--wide" role="tablist" id="result-tabs">
+                  <button role="tab" class="is-active" data-tab="coef">Koeffitsiyentlar</button>
+                  <button role="tab" data-tab="anova">ANOVA</button>
+                  <button role="tab" data-tab="diag">Diagnostika</button>
+                  <button role="tab" data-tab="resid">Qoldiqlar</button>
+                  <button role="tab" data-tab="steps" id="steps-tab">Qadamma-qadam</button>
+                  <button role="tab" data-tab="corr">Korrelyatsiya</button>
+                  <button role="tab" data-tab="desc">Tavsifiy</button>
+                  <button role="tab" data-tab="models">Modellar</button>
+                </div>
+                <div class="result-pane" data-pane="coef"></div>
+                <div class="result-pane" data-pane="anova" hidden></div>
+                <div class="result-pane" data-pane="diag" hidden></div>
+                <div class="result-pane" data-pane="resid" hidden></div>
+                <div class="result-pane" data-pane="steps" hidden></div>
+                <div class="result-pane" data-pane="corr" hidden></div>
+                <div class="result-pane" data-pane="desc" hidden></div>
+                <div class="result-pane" data-pane="models" hidden></div>
+              </div>
+
+              <div class="split-2">
+                <div class="panel">
+                  <h3>Bashorat <button type="button" class="help" data-help="pred" aria-label="Bashorat — izoh">?</button></h3>
+                  <form class="predict" id="predict-form"></form>
+                  <div class="predict-out" id="predict-out"></div>
+                  <div class="forecast">
+                    <h4>Prognoz jadvali (bir nechta nuqta)</h4>
+                    <textarea id="forecast-input" class="textarea textarea--small" spellcheck="false"></textarea>
+                    <button class="btn btn--tiny btn--ghost" id="forecast-btn" type="button">Prognozni hisoblash</button>
+                    <div id="forecast-out"></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <h3>Avtomatik xulosa</h3>
+                  <ul class="insights" id="insights"></ul>
+                </div>
+              </div>
+
+              <div class="panel export">
+                <h3>Eksport</h3>
+                <div class="row-actions">
+                  <button class="btn btn--tiny btn--ghost" data-export="report">Hisobot (HTML / PDF)</button>
+                  <button class="btn btn--tiny btn--ghost" data-export="csv">Qoldiqlar jadvali (CSV)</button>
+                  <button class="btn btn--tiny btn--ghost" data-export="json">Model (JSON)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ GRADIENT ============ -->
+      <section class="section" id="gradient">
+        <header class="section__head">
+          <p class="eyebrow">05 — Gradient tushish <button type="button" class="help" data-help="gd" aria-label="Gradient tushish — izoh">?</button></p>
+          <h2 class="section__title reveal-words">Algoritm minimumni qanday topishini kuzating</h2>
+          <p class="section__lead">Laboratoriyadagi joriy ma’lumotlar asosida J(b) = (1/2n)·Σ(ŷ − y)² funksiyasi minimallashtiriladi. Natija EKKU yechimi bilan solishtiriladi.</p>
+        </header>
+        <div class="gd">
+          <aside class="panel gd__controls">
+            <label class="field">
+              <span>O‘rganish tezligi η = <b id="lr-val">0.1</b></span>
+              <input type="range" id="lr" min="-4" max="0.3" step="0.01" value="-1" />
+            </label>
+            <label class="field">
+              <span>Epoxalar soni: <b id="ep-val">300</b></span>
+              <input type="range" id="epochs" min="10" max="3000" step="10" value="300" />
+            </label>
+            <label class="field">
+              <span>Usul</span>
+              <select id="gd-method">
+                <option value="batch">Batch GD</option>
+                <option value="minibatch">Mini-batch GD</option>
+                <option value="sgd">Stoxastik GD (SGD)</option>
+              </select>
+            </label>
+            <label class="field" id="bs-field" hidden>
+              <span>Paket hajmi: <b id="bs-val">8</b></span>
+              <input type="range" id="batch" min="2" max="64" step="1" value="8" />
+            </label>
+            <label class="field">
+              <span>Momentum β = <b id="mom-val">0</b></span>
+              <input type="range" id="momentum" min="0" max="0.95" step="0.05" value="0" />
+            </label>
+            <label class="switch"><input type="checkbox" id="standardize" checked /><span class="switch__track"></span>Omillarni standartlashtirish</label>
+            <div class="gd__buttons">
+              <button class="btn btn--glow btn--small" id="gd-play">▶ Ishga tushirish</button>
+              <button class="btn btn--ghost btn--small" id="gd-reset">↺</button>
+            </div>
+            <div class="gd__readout" id="gd-readout"></div>
+          </aside>
+          <div class="gd__viz">
+            <div class="panel"><h3 id="gd-surface-title">Xarajat funksiyasi sirti J(b₀, b₁)</h3><div class="viz viz--gd" id="gd-surface"></div></div>
+            <div class="split-2">
+              <div class="panel"><h3>Xarajat dinamikasi</h3><div class="viz viz--small" id="gd-loss"></div></div>
+              <div class="panel"><h3 id="gd-fit-title">Moslashuv</h3><div class="viz viz--small" id="gd-fit"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ THEORY (Reveal.js) ============ -->
+      <section class="section" id="nazariya">
+        <header class="section__head">
+          <p class="eyebrow">06 — Nazariya</p>
+          <h2 class="section__title reveal-words">Interaktiv ma’ruza: chiziqli regressiya asoslari</h2>
+          <p class="section__lead">Slaydlar orasida ← → tugmalari yoki suring. “F” — to‘liq ekran.</p>
+        </header>
+        <div class="deck-frame">
+          <div class="reveal" id="deck">
+            <div class="slides" id="deck-slides"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__big" aria-hidden="true">ŷ = Xb</div>
+      <div class="footer__row">
+        <p>Regressiya.Lab — chiziqli regressiya masalalari uchun dasturiy majmua</p>
+        <p class="muted">Barcha hisoblashlar brauzerda bajariladi — ma’lumotlaringiz hech qayerga yuborilmaydi.</p>
+      </div>
+    </footer>
+
+    <div class="help-pop" id="help-pop" role="dialog" aria-modal="false" hidden><button type="button" class="help-pop__x" aria-label="Yopish">×</button><b></b><p class="help-pop__short"></p><p class="help-pop__long"></p></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
